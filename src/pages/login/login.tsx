@@ -21,7 +21,6 @@ export const Login: FC = () => {
     }
   }, [error]);
 
-
   const handleSubmit = (e: FormEvent) => {
     e.preventDefault();
     setErrorText('');

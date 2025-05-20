@@ -163,6 +163,7 @@ const userSlice = createSlice({
         state.error = null;
       })
       .addCase(logoutUser.fulfilled, (state) => {
+        state.user = null;
         state.loading = false;
       })
       .addCase(logoutUser.rejected, (state, action) => {

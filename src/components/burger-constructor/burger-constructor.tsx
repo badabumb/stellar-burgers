@@ -11,6 +11,7 @@ import {
   clearCurrentOrder
 } from '../../services/slices/orders-slice';
 import { useNavigate } from 'react-router-dom';
+import { clearConstructor } from '../../services/slices/constructor-slice';
 
 export const BurgerConstructor: FC = () => {
   const dispatch = useDispatch();
@@ -37,7 +38,11 @@ export const BurgerConstructor: FC = () => {
       ...ids,
       constructorItems.bun._id
     ];
-    dispatch(createOrder(ingredientIds));
+    dispatch(createOrder(ingredientIds)).then((action) => {
+  if (createOrder.fulfilled.match(action)) {
+        dispatch(clearConstructor());
+      }
+    });
   };
 
   const closeOrderModal = () => {

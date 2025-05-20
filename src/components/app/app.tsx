@@ -24,7 +24,7 @@ import {
 const App = () => {
   const dispatch = useDispatch();
 
-      useEffect(() => {
+  useEffect(() => {
     dispatch(fetchIngredients());
   }, [dispatch]);
 
@@ -120,6 +120,5 @@ const App = () => {
     </BrowserRouter>
   );
 };
-
 
 export default App;

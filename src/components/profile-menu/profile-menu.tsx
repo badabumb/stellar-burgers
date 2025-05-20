@@ -3,6 +3,7 @@ import { useLocation, useNavigate } from 'react-router-dom';
 import { ProfileMenuUI } from '@ui';
 import { useDispatch } from '../../services/store';
 import { logoutUser } from '../../services/slices/user-slice';
+import { clearConstructor } from '../../services/slices/constructor-slice';
 
 export const ProfileMenu: FC = () => {
   const { pathname } = useLocation();
@@ -14,6 +15,9 @@ export const ProfileMenu: FC = () => {
       if ('error' in action) {
         return;
       }
+      
+      dispatch(clearConstructor());
+
       localStorage.removeItem('refreshToken');
       document.cookie = 'accessToken=; path=/; max-age=0';
       console.log('Logged out');

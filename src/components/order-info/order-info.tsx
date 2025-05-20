@@ -9,7 +9,7 @@ import { fetchOrderByNumber } from '../../services/slices/orders-slice';
 export const OrderInfo: FC = () => {
   const { number } = useParams<{ number: string }>();
   const dispatch = useDispatch();
-  
+
   const [orderData, setOrderData] = useState<TOrder | null>(null);
 
   const ingredients: TIngredient[] = useSelector(
