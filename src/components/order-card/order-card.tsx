@@ -1,10 +1,10 @@
-import React, { FC, memo, useMemo } from 'react';
+import { FC, memo, useMemo } from 'react';
 import { useLocation } from 'react-router-dom';
-import { useSelector, RootState } from '../../services/store';
 
 import { OrderCardProps } from './type';
-import { TIngredient } from 'src/utils/types';
+import { TIngredient } from '@utils-types';
 import { OrderCardUI } from '../ui/order-card';
+import { RootState, useSelector } from '../../services/store';
 
 const maxIngredients = 6;
 
