@@ -1,7 +1,7 @@
-import { FC, useEffect, useMemo } from 'react';
+import { FC, useEffect, useMemo, useState } from 'react';
 import { Preloader } from '../ui/preloader';
 import { OrderInfoUI } from '../ui/order-info';
-import { TIngredient } from '@utils-types';
+import { TIngredient, TOrder } from '@utils-types';
 import { RootState, useDispatch, useSelector } from '../../services/store';
 import { useParams } from 'react-router-dom';
 import { fetchOrderByNumber } from '../../services/slices/orders-slice';
@@ -10,10 +10,7 @@ export const OrderInfo: FC = () => {
   const { number } = useParams<{ number: string }>();
   const dispatch = useDispatch();
   
-  /** TODO: взять переменные orderData и ingredients из стора */
-  const orderData = useSelector(
-    (state: RootState) => state.orders.currentOrder
-  );
+  const [orderData, setOrderData] = useState<TOrder | null>(null);
 
   const ingredients: TIngredient[] = useSelector(
     (state: RootState) => state.ingredients.items
@@ -21,10 +18,15 @@ export const OrderInfo: FC = () => {
 
   // Запрашиваем детали заказа по номеру
   useEffect(() => {
-    if (!orderData || orderData.number.toString() !== number) {
-      dispatch(fetchOrderByNumber(Number(number)));
-    }
-  }, [dispatch, number, orderData]);
+    dispatch(fetchOrderByNumber(Number(number)))
+      .unwrap()
+      .then((orders) => {
+        setOrderData(orders[0] ?? null);
+      })
+      .catch((err) => {
+        console.error('Ошибка при загрузке заказа:', err);
+      });
+  }, [dispatch, number]);
 
   const orderInfo = useMemo(() => {
     if (!orderData || !ingredients.length) return null;
