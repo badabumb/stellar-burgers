@@ -12,11 +12,14 @@ import { ProfileOrders } from '../../pages/profile-orders';
 import { NotFound404 } from '../../pages/not-fount-404';
 import { OrderInfo } from '../../components/order-info';
 import { IngredientDetails } from '../../components/ingredient-details';
-import { ProtectedRoute } from '../../components/protected-route';
 import { Modal } from '../../components/modal';
 import { RootState, useDispatch, useSelector } from '../../services/store';
 import { fetchIngredients } from '../../services/slices/ingredients-slice';
 import { Preloader } from '../ui/preloader/preloader';
+import {
+  ProtectedRoute,
+  PublicRoute
+} from '../protected-route/protected-route';
 
 const App = () => {
   const dispatch = useDispatch();
@@ -54,33 +57,33 @@ const App = () => {
         <Route
           path='/login'
           element={
-            <ProtectedRoute>
+            <PublicRoute>
               <Login />
-            </ProtectedRoute>
+            </PublicRoute>
           }
         />
         <Route
           path='/register'
           element={
-            <ProtectedRoute>
+            <PublicRoute>
               <Register />
-            </ProtectedRoute>
+            </PublicRoute>
           }
         />
         <Route
           path='/forgot-password'
           element={
-            <ProtectedRoute>
+            <PublicRoute>
               <ForgotPassword />
-            </ProtectedRoute>
+            </PublicRoute>
           }
         />
         <Route
           path='/reset-password'
           element={
-            <ProtectedRoute>
+            <PublicRoute>
               <ResetPassword />
-            </ProtectedRoute>
+            </PublicRoute>
           }
         />
         <Route

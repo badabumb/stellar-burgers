@@ -29,11 +29,6 @@ export const Profile: FC = () => {
   });
   const [errorText, setErrorText] = useState<string>('');
 
-  // Fetch user data on mount
-  useEffect(() => {
-    dispatch(fetchUser());
-  }, [dispatch]);
-
   // Initialize form when user changes
   useEffect(() => {
     if (user) {

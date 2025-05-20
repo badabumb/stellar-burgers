@@ -12,12 +12,11 @@ export const ProfileMenu: FC = () => {
   const handleLogout = () => {
     dispatch(logoutUser()).then((action) => {
       if ('error' in action) {
-        // можно обработать ошибку выхода
         return;
       }
-      // Удалим сохранённые токены
       localStorage.removeItem('refreshToken');
-      document.cookie = 'accessToken=; max-age=0';
+      document.cookie = 'accessToken=; path=/; max-age=0';
+      console.log('Logged out');
       navigate('/login', { replace: true });
     });
   };
