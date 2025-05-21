@@ -39,7 +39,7 @@ export const BurgerConstructor: FC = () => {
       constructorItems.bun._id
     ];
     dispatch(createOrder(ingredientIds)).then((action) => {
-  if (createOrder.fulfilled.match(action)) {
+      if (createOrder.fulfilled.match(action)) {
         dispatch(clearConstructor());
       }
     });

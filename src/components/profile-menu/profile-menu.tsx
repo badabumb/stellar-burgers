@@ -15,7 +15,7 @@ export const ProfileMenu: FC = () => {
       if ('error' in action) {
         return;
       }
-      
+
       dispatch(clearConstructor());
 
       localStorage.removeItem('refreshToken');
