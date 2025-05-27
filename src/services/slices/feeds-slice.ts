@@ -2,7 +2,7 @@ import { createSlice, createAsyncThunk, PayloadAction } from '@reduxjs/toolkit';
 import { getFeedsApi } from '../../utils/burger-api';
 import { TOrder } from '../../utils/types';
 
-interface FeedState {
+export interface FeedState {
   orders: TOrder[];
   total: number;
   totalToday: number;
@@ -10,7 +10,7 @@ interface FeedState {
   error: string | null;
 }
 
-const initialFeedState: FeedState = {
+const feedsInitialState: FeedState = {
   orders: [],
   total: 0,
   totalToday: 0,
@@ -37,7 +37,7 @@ export const fetchFeed = createAsyncThunk<
 
 const feedSlice = createSlice({
   name: 'feed',
-  initialState: initialFeedState,
+  initialState: feedsInitialState,
   reducers: {},
   extraReducers: (builder) => {
     builder
@@ -69,3 +69,4 @@ const feedSlice = createSlice({
 });
 
 export const feedReducer = feedSlice.reducer;
+export { feedsInitialState };

@@ -4,12 +4,10 @@ import { fetchFeed } from '../../services/slices/feeds-slice';
 import { FeedInfoUI } from '../ui/feed-info';
 import { TOrder } from '../../utils/types';
 
-const extractOrderNumbers = (list: TOrder[], matchStatus: string): number[] => {
-  return list
+const extractOrderNumbers = (list: TOrder[], matchStatus: string): number[] => list
     .filter((order) => order.status === matchStatus)
     .map((order) => order.number)
     .slice(0, 20);
-};
 
 export const FeedInfo: FC = () => {
   const dispatchFeed = useDispatch();

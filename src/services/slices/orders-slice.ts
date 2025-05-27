@@ -6,14 +6,14 @@ import {
 } from '../../utils/burger-api';
 import { TOrder } from '../../utils/types';
 
-interface OrdersState {
+export interface OrdersState {
   orders: TOrder[];
   currentOrder: TOrder | null;
   loading: boolean;
   error: string | null;
 }
 
-const initialOrdersState: OrdersState = {
+const ordersInitialState: OrdersState = {
   orders: [],
   currentOrder: null,
   loading: false,
@@ -61,7 +61,7 @@ export const fetchOrderByNumber = createAsyncThunk<
 
 const ordersSlice = createSlice({
   name: 'orders',
-  initialState: initialOrdersState,
+  initialState: ordersInitialState,
   reducers: {
     clearCurrentOrder(state) {
       state.currentOrder = null;
@@ -123,3 +123,4 @@ const ordersSlice = createSlice({
 
 export const { clearCurrentOrder } = ordersSlice.actions;
 export const ordersReducer = ordersSlice.reducer;
+export { ordersInitialState };

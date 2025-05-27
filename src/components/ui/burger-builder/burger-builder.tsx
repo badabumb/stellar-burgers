@@ -18,9 +18,9 @@ export const BurgerBuilderUI: FC<BurgerBuilderUIProps> = ({
   onOrderClick,
   closeOrderModal
 }) => (
-  <section className={styles.burger_builder}>
+  <section className={styles.burger_builder} data-cy='builder'>
     {builderItems.bun ? (
-      <div className={`${styles.element} mb-4 mr-4`}>
+      <div className={`${styles.element} mb-4 mr-4`} data-cy='builder-bun'>
         <ConstructorElement
           type='top'
           isLocked

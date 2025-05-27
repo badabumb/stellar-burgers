@@ -12,14 +12,14 @@ import {
 } from '../../utils/burger-api';
 import { TUser } from '../../utils/types';
 
-interface UserState {
+export interface UserState {
   user: TUser | null;
   loading: boolean;
   error: string | null;
   passwordResetRequested: boolean;
 }
 
-const initialUserState: UserState = {
+const userInitialState: UserState = {
   user: null,
   loading: false,
   error: null,
@@ -124,7 +124,7 @@ export const resetPassword = createAsyncThunk<
 
 const userSlice = createSlice({
   name: 'user',
-  initialState: initialUserState,
+  initialState: userInitialState,
   reducers: {
     clearPasswordReset(state) {
       state.passwordResetRequested = false;
@@ -227,3 +227,4 @@ const userSlice = createSlice({
 
 export const { clearPasswordReset } = userSlice.actions;
 export const userReducer = userSlice.reducer;
+export { userInitialState };

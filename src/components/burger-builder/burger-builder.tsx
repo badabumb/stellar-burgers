@@ -48,6 +48,7 @@ export const BurgerBuilder: FC = () => {
 
   const dismissModal = () => {
     send(clearCurrentOrder());
+    send(clearBuilder());
   };
 
   const totalPrice = useMemo(() => {

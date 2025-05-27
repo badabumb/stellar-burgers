@@ -1,7 +1,7 @@
 import { createSlice, nanoid, PayloadAction } from '@reduxjs/toolkit';
 import { TBuilderIngredient, TIngredient } from 'src/utils/types';
 
-interface BuilderState {
+export interface BuilderState {
   bun: TBuilderIngredient | null;
   ingredients: TBuilderIngredient[];
 }
@@ -66,3 +66,4 @@ export const {
 } = builderSlice.actions;
 
 export const builderReducer = builderSlice.reducer;
+export { initialState as builderInitialState };
