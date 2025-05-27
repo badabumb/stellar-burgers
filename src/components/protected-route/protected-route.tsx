@@ -1,66 +1,71 @@
-// src/components/protected-route/protected-route.tsx
 import React, { FC, useEffect } from 'react';
 import { Navigate, useLocation } from 'react-router-dom';
 import { useDispatch, useSelector, RootState } from '../../services/store';
 import { fetchUser } from '../../services/slices/user-slice';
 
-type TRouteProps = {
+type RouteProps = {
   children: React.ReactNode;
 };
 
 /**
- * Защищённый маршрут: доступен только аутентифицированным пользователям.
- * При первичной загрузке проверяет токен и подтягивает профиль.
- * Неаутентифицированные перенаправляются на /login.
+ * Приватный маршрут: открыт только для авторизованных юзеров.
+ * Проверка токена и загрузка профиля при первом рендере.
+ * Если юзер не вошёл — редирект на страницу логина.
  */
-export const ProtectedRoute: FC<TRouteProps> = ({ children }) => {
-  const dispatch = useDispatch();
-  const location = useLocation();
-  const { user, loading } = useSelector((state: RootState) => state.user);
-  const hasToken = document.cookie
-    .split('; ')
-    .some((row) => row.startsWith('accessToken='));
-  useEffect(() => {
-    if (hasToken && !user && !loading) {
-      dispatch(fetchUser());
-    }
-  }, [dispatch, user, loading]);
+export const ProtectedRoute: FC<RouteProps> = ({ children }) => {
+  const dispatchFn = useDispatch();
+  const routeLocation = useLocation();
+  const { user: currentUser, loading: isUserLoading } = useSelector(
+    (state: RootState) => state.user
+  );
 
-  if (loading || (hasToken && !user)) {
+  const tokenExists = document.cookie
+    .split('; ')
+    .some((cookie) => cookie.startsWith('accessToken='));
+
+  useEffect(() => {
+    if (tokenExists && !currentUser && !isUserLoading) {
+      dispatchFn(fetchUser());
+    }
+  }, [dispatchFn, currentUser, isUserLoading, tokenExists]);
+
+  if (isUserLoading || (tokenExists && !currentUser)) {
     return null;
   }
 
-  if (!user) {
-    return <Navigate to='/login' state={{ from: location }} replace />;
+  if (!currentUser) {
+    return <Navigate to="/login" state={{ from: routeLocation }} replace />;
   }
 
   return <>{children}</>;
 };
 
 /**
- * Публичный маршрут: доступен только неаутентифицированным пользователям.
- * При первичной загрузке проверяет токен и подтягивает профиль.
- * Аутентифицированные перенаправляются на главную страницу.
+ * Открытый маршрут: доступен только неавторизованным пользователям.
+ * Если есть токен и нет данных о пользователе — грузим профиль.
+ * Если авторизован — редирект на главную.
  */
-export const PublicRoute: FC<TRouteProps> = ({ children }) => {
-  const dispatch = useDispatch();
-  const { user, loading } = useSelector((state: RootState) => state.user);
+export const PublicRoute: FC<RouteProps> = ({ children }) => {
+  const dispatchFn = useDispatch();
+  const { user: activeUser, loading: userPending } = useSelector(
+    (state: RootState) => state.user
+  );
 
   useEffect(() => {
-    const hasToken = document.cookie
+    const tokenDetected = document.cookie
       .split('; ')
-      .some((row) => row.startsWith('accessToken='));
-    if (hasToken && !user && !loading) {
-      dispatch(fetchUser());
+      .some((cookie) => cookie.startsWith('accessToken='));
+    if (tokenDetected && !activeUser && !userPending) {
+      dispatchFn(fetchUser());
     }
-  }, [dispatch, user, loading]);
+  }, [dispatchFn, activeUser, userPending]);
 
-  if (loading) {
+  if (userPending) {
     return null;
   }
 
-  if (user) {
-    return <Navigate to='/' replace />;
+  if (activeUser) {
+    return <Navigate to="/" replace />;
   }
 
   return <>{children}</>;

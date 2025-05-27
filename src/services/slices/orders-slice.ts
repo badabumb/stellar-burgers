@@ -26,10 +26,10 @@ export const fetchOrders = createAsyncThunk<
   { rejectValue: string }
 >('orders/fetch', async (_, { rejectWithValue }) => {
   try {
-    const data = await getOrdersApi();
-    return data;
-  } catch (err: any) {
-    return rejectWithValue(err.message);
+    const response = await getOrdersApi();
+    return response;
+  } catch (e: any) {
+    return rejectWithValue(e.message);
   }
 });
 
@@ -37,12 +37,12 @@ export const createOrder = createAsyncThunk<
   { order: TOrder; name: string },
   string[],
   { rejectValue: string }
->('orders/create', async (ingredients, { rejectWithValue }) => {
+>('orders/create', async (items, { rejectWithValue }) => {
   try {
-    const data = await orderBurgerApi(ingredients);
-    return data;
-  } catch (err: any) {
-    return rejectWithValue(err.message);
+    const result = await orderBurgerApi(items);
+    return result;
+  } catch (e: any) {
+    return rejectWithValue(e.message);
   }
 });
 
@@ -50,12 +50,12 @@ export const fetchOrderByNumber = createAsyncThunk<
   TOrder[],
   number,
   { rejectValue: string }
->('orders/fetchByNumber', async (orderNumber, { rejectWithValue }) => {
+>('orders/fetchByNumber', async (id, { rejectWithValue }) => {
   try {
-    const data = await getOrderByNumberApi(orderNumber);
+    const data = await getOrderByNumberApi(id);
     return data.orders;
-  } catch (err: any) {
-    return rejectWithValue(err.message);
+  } catch (e: any) {
+    return rejectWithValue(e.message);
   }
 });
 
@@ -69,52 +69,54 @@ const ordersSlice = createSlice({
   },
   extraReducers: (builder) => {
     builder
-      .addCase(fetchOrders.pending, (state) => {
-        state.loading = true;
-        state.error = null;
+      .addCase(fetchOrders.pending, (draft) => {
+        draft.loading = true;
+        draft.error = null;
       })
       .addCase(
         fetchOrders.fulfilled,
-        (state, action: PayloadAction<TOrder[]>) => {
-          state.orders = action.payload;
-          state.loading = false;
+        (draft, action: PayloadAction<TOrder[]>) => {
+          draft.orders = action.payload;
+          draft.loading = false;
         }
       )
-      .addCase(fetchOrders.rejected, (state, action) => {
-        state.loading = false;
-        state.error = action.payload || 'Failed to fetch orders';
+      .addCase(fetchOrders.rejected, (draft, action) => {
+        draft.loading = false;
+        draft.error = action.payload || 'Ошибка при получении заказов';
       })
-      .addCase(createOrder.pending, (state) => {
-        state.loading = true;
-        state.error = null;
+
+      .addCase(createOrder.pending, (draft) => {
+        draft.loading = true;
+        draft.error = null;
       })
       .addCase(
         createOrder.fulfilled,
-        (state, action: PayloadAction<{ order: TOrder; name: string }>) => {
+        (draft, action: PayloadAction<{ order: TOrder; name: string }>) => {
           const { order } = action.payload;
-          state.orders.unshift(order);
-          state.currentOrder = order;
-          state.loading = false;
+          draft.orders.unshift(order);
+          draft.currentOrder = order;
+          draft.loading = false;
         }
       )
-      .addCase(createOrder.rejected, (state, action) => {
-        state.loading = false;
-        state.error = action.payload || 'Failed to create order';
+      .addCase(createOrder.rejected, (draft, action) => {
+        draft.loading = false;
+        draft.error = action.payload || 'Ошибка при создании заказа';
       })
-      .addCase(fetchOrderByNumber.pending, (state) => {
-        state.loading = true;
-        state.error = null;
+
+      .addCase(fetchOrderByNumber.pending, (draft) => {
+        draft.loading = true;
+        draft.error = null;
       })
       .addCase(
         fetchOrderByNumber.fulfilled,
-        (state, action: PayloadAction<TOrder[]>) => {
-          state.currentOrder = null;
-          state.loading = false;
+        (draft, action: PayloadAction<TOrder[]>) => {
+          draft.currentOrder = null;
+          draft.loading = false;
         }
       )
-      .addCase(fetchOrderByNumber.rejected, (state, action) => {
-        state.loading = false;
-        state.error = action.payload || 'Failed to fetch order';
+      .addCase(fetchOrderByNumber.rejected, (draft, action) => {
+        draft.loading = false;
+        draft.error = action.payload || 'Ошибка получения заказа по номеру';
       });
   }
 });

@@ -4,41 +4,40 @@ import { fetchFeed } from '../../services/slices/feeds-slice';
 import { FeedInfoUI } from '../ui/feed-info';
 import { TOrder } from '../../utils/types';
 
-const getOrders = (orders: TOrder[], status: string): number[] =>
-  orders
-    .filter((item) => item.status === status)
-    .map((item) => item.number)
+const extractOrderNumbers = (list: TOrder[], matchStatus: string): number[] => {
+  return list
+    .filter((order) => order.status === matchStatus)
+    .map((order) => order.number)
     .slice(0, 20);
+};
 
 export const FeedInfo: FC = () => {
-  const dispatch = useDispatch();
-  const { orders, total, totalToday, loading, error } = useSelector(
+  const dispatchFeed = useDispatch();
+  const { orders, total, totalToday, loading: isLoading, error: fetchError } = useSelector(
     (state: RootState) => state.feed
   );
 
   useEffect(() => {
-    dispatch(fetchFeed());
-  }, [dispatch]);
+    dispatchFeed(fetchFeed());
+  }, [dispatchFeed]);
 
-  if (loading) {
+  if (isLoading) {
     return <p className='text text_type_main-default'>Загрузка...</p>;
   }
 
-  if (error) {
-    return <p className='text text_type_main-default'>Ошибка: {error}</p>;
+  if (fetchError) {
+    return <p className='text text_type_main-default'>Ошибка: {fetchError}</p>;
   }
 
-  const readyOrders = getOrders(orders, 'done');
-
-  const pendingOrders = getOrders(orders, 'pending');
-
-  const feed = { total, totalToday };
+  const doneList = extractOrderNumbers(orders, 'done');
+  const pendingList = extractOrderNumbers(orders, 'pending');
+  const feedSummary = { total, totalToday };
 
   return (
     <FeedInfoUI
-      readyOrders={readyOrders}
-      pendingOrders={pendingOrders}
-      feed={feed}
+      readyOrders={doneList}
+      pendingOrders={pendingList}
+      feed={feedSummary}
     />
   );
 };

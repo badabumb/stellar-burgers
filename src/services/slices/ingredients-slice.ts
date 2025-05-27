@@ -20,10 +20,10 @@ export const fetchIngredients = createAsyncThunk<
   { rejectValue: string }
 >('ingredients/fetch', async (_, { rejectWithValue }) => {
   try {
-    const data = await getIngredientsApi();
-    return data;
-  } catch (err: any) {
-    return rejectWithValue(err.message);
+    const result = await getIngredientsApi();
+    return result;
+  } catch (e: any) {
+    return rejectWithValue(e.message);
   }
 });
 
@@ -33,20 +33,20 @@ const ingredientsSlice = createSlice({
   reducers: {},
   extraReducers: (builder) => {
     builder
-      .addCase(fetchIngredients.pending, (state) => {
-        state.loading = true;
-        state.error = null;
+      .addCase(fetchIngredients.pending, (draft) => {
+        draft.loading = true;
+        draft.error = null;
       })
       .addCase(
         fetchIngredients.fulfilled,
-        (state, action: PayloadAction<TIngredient[]>) => {
-          state.items = action.payload;
-          state.loading = false;
+        (draft, action: PayloadAction<TIngredient[]>) => {
+          draft.items = action.payload;
+          draft.loading = false;
         }
       )
-      .addCase(fetchIngredients.rejected, (state, action) => {
-        state.loading = false;
-        state.error = action.payload || 'Failed to fetch ingredients';
+      .addCase(fetchIngredients.rejected, (draft, action) => {
+        draft.loading = false;
+        draft.error = action.payload || 'Не удалось получить ингредиенты';
       });
   }
 });

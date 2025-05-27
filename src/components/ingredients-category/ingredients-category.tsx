@@ -8,27 +8,28 @@ export const IngredientsCategory = forwardRef<
   HTMLUListElement,
   TIngredientsCategoryProps
 >(({ title, titleRef, ingredients }, ref) => {
-  const burgerConstructor = useSelector(
-    (state: RootState) => state.constructorBurger
-  );
+  const builderState = useSelector((state: RootState) => state.builderBurger);
 
-  const ingredientsCounters = useMemo(() => {
-    const { bun, ingredients: constructorIngredients } = burgerConstructor;
-    const counters: Record<string, number> = {};
+  const countersMap = useMemo(() => {
+    const result: Record<string, number> = {};
 
-    constructorIngredients.forEach((ingredient: TIngredient) => {
-      counters[ingredient._id] = (counters[ingredient._id] || 0) + 1;
+    builderState.ingredients.forEach((item: TIngredient) => {
+      result[item._id] = (result[item._id] || 0) + 1;
     });
-    if (bun) counters[bun._id] = 2;
-    return counters;
-  }, [burgerConstructor]);
+
+    if (builderState.bun) {
+      result[builderState.bun._id] = 2;
+    }
+
+    return result;
+  }, [builderState]);
 
   return (
     <IngredientsCategoryUI
       title={title}
       titleRef={titleRef}
       ingredients={ingredients}
-      ingredientsCounters={ingredientsCounters}
+      ingredientsCounters={countersMap}
       ref={ref}
     />
   );

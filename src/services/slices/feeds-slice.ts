@@ -24,14 +24,14 @@ export const fetchFeed = createAsyncThunk<
   { rejectValue: string }
 >('feed/fetch', async (_, { rejectWithValue }) => {
   try {
-    const data = await getFeedsApi();
+    const response = await getFeedsApi();
     return {
-      orders: data.orders,
-      total: data.total,
-      totalToday: data.totalToday
+      orders: response.orders,
+      total: response.total,
+      totalToday: response.totalToday
     };
-  } catch (err: any) {
-    return rejectWithValue(err.message);
+  } catch (e: any) {
+    return rejectWithValue(e.message);
   }
 });
 
@@ -41,29 +41,29 @@ const feedSlice = createSlice({
   reducers: {},
   extraReducers: (builder) => {
     builder
-      .addCase(fetchFeed.pending, (state) => {
-        state.loading = true;
-        state.error = null;
+      .addCase(fetchFeed.pending, (draft) => {
+        draft.loading = true;
+        draft.error = null;
       })
       .addCase(
         fetchFeed.fulfilled,
         (
-          state,
+          draft,
           action: PayloadAction<{
             orders: TOrder[];
             total: number;
             totalToday: number;
           }>
         ) => {
-          state.orders = action.payload.orders;
-          state.total = action.payload.total;
-          state.totalToday = action.payload.totalToday;
-          state.loading = false;
+          draft.orders = action.payload.orders;
+          draft.total = action.payload.total;
+          draft.totalToday = action.payload.totalToday;
+          draft.loading = false;
         }
       )
-      .addCase(fetchFeed.rejected, (state, action) => {
-        state.loading = false;
-        state.error = action.payload || 'Failed to fetch feed';
+      .addCase(fetchFeed.rejected, (draft, action) => {
+        draft.loading = false;
+        draft.error = action.payload || 'Не удалось загрузить ленту';
       });
   }
 });
