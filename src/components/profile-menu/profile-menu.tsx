@@ -3,27 +3,25 @@ import { useLocation, useNavigate } from 'react-router-dom';
 import { ProfileMenuUI } from '@ui';
 import { useDispatch } from '../../services/store';
 import { logoutUser } from '../../services/slices/user-slice';
-import { clearConstructor } from '../../services/slices/constructor-slice';
+import { clearBuilder } from '../../services/slices/builder-slice';
 
 export const ProfileMenu: FC = () => {
-  const { pathname } = useLocation();
-  const dispatch = useDispatch();
-  const navigate = useNavigate();
+  const location = useLocation();
+  const navigateTo = useNavigate();
+  const dispatchAction = useDispatch();
+  const currentPath = location.pathname;
 
-  const handleLogout = () => {
-    dispatch(logoutUser()).then((action) => {
-      if ('error' in action) {
-        return;
-      }
+  const onLogout = () => {
+    dispatchAction(logoutUser()).then((result) => {
+      if ('error' in result) return;
 
-      dispatch(clearConstructor());
-
+      dispatchAction(clearBuilder());
       localStorage.removeItem('refreshToken');
       document.cookie = 'accessToken=; path=/; max-age=0';
-      console.log('Logged out');
-      navigate('/login', { replace: true });
+      console.log('User session cleared');
+      navigateTo('/login', { replace: true });
     });
   };
 
-  return <ProfileMenuUI handleLogout={handleLogout} pathname={pathname} />;
+  return <ProfileMenuUI handleLogout={onLogout} pathname={currentPath} />;
 };

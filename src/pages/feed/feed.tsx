@@ -5,20 +5,23 @@ import { useDispatch, useSelector, RootState } from '../../services/store';
 import { fetchFeed } from '../../services/slices/feeds-slice';
 
 export const Feed: FC = () => {
-  const dispatch = useDispatch();
-  const { orders, loading, error } = useSelector(
+  const send = useDispatch();
+  const { orders: feedOrders, loading: isLoading, error: feedError } = useSelector(
     (state: RootState) => state.feed
   );
 
   useEffect(() => {
-    dispatch(fetchFeed());
-  }, [dispatch]);
+    send(fetchFeed());
+  }, [send]);
 
-  if (error) {
-    return <p className='text text_type_main-default'>Ошибка: {error}</p>;
+  if (feedError) {
+    return <p className="text text_type_main-default">Ошибка: {feedError}</p>;
   }
 
   return (
-    <FeedUI orders={orders} handleGetFeeds={() => dispatch(fetchFeed())} />
+    <FeedUI
+      orders={feedOrders}
+      handleGetFeeds={() => send(fetchFeed())}
+    />
   );
 };

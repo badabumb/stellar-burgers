@@ -6,33 +6,32 @@ import { Preloader } from '../ui/preloader';
 import { IngredientDetailsUI } from '../ui/ingredient-details';
 
 export const IngredientDetails: FC = () => {
-  const { id } = useParams<{ id: string }>();
-  const dispatch = useDispatch();
-  const { items, loading, error } = useSelector(
+  const { id: ingredientId } = useParams<{ id: string }>();
+  const send = useDispatch();
+
+  const { items: ingredientList, loading: isPending, error: loadError } = useSelector(
     (state: RootState) => state.ingredients
   );
 
   useEffect(() => {
-    // Если ингредиенты не загружены, запросить их
-    if (!items.length) {
-      dispatch(fetchIngredients());
+    if (!ingredientList.length) {
+      send(fetchIngredients());
     }
-  }, [dispatch, items.length]);
+  }, [send, ingredientList.length]);
 
-  // Пока идёт загрузка или нет данных — показать прелоадер
-  if (loading || !items.length) {
+  if (isPending || !ingredientList.length) {
     return <Preloader />;
   }
 
-  if (error) {
-    return <p className='text text_type_main-default'>Ошибка: {error}</p>;
+  if (loadError) {
+    return <p className='text text_type_main-default'>Ошибка: {loadError}</p>;
   }
 
-  const ingredientData = items.find((item) => item._id === id!);
+  const selectedItem = ingredientList.find((el) => el._id === ingredientId!);
 
-  if (!ingredientData) {
+  if (!selectedItem) {
     return <p className='text text_type_main-default'>Ингредиент не найден</p>;
   }
 
-  return <IngredientDetailsUI ingredientData={ingredientData} />;
+  return <IngredientDetailsUI ingredientData={selectedItem} />;
 };

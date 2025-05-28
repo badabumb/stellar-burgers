@@ -7,75 +7,60 @@ import { useParams } from 'react-router-dom';
 import { fetchOrderByNumber } from '../../services/slices/orders-slice';
 
 export const OrderInfo: FC = () => {
-  const { number } = useParams<{ number: string }>();
-  const dispatch = useDispatch();
+  const { number: orderId } = useParams<{ number: string }>();
+  const send = useDispatch();
 
-  const [orderData, setOrderData] = useState<TOrder | null>(null);
+  const [selectedOrder, setSelectedOrder] = useState<TOrder | null>(null);
 
-  const ingredients: TIngredient[] = useSelector(
+  const allIngredients: TIngredient[] = useSelector(
     (state: RootState) => state.ingredients.items
   );
 
-  // Запрашиваем детали заказа по номеру
   useEffect(() => {
-    dispatch(fetchOrderByNumber(Number(number)))
+    send(fetchOrderByNumber(Number(orderId)))
       .unwrap()
-      .then((orders) => {
-        setOrderData(orders[0] ?? null);
+      .then((result) => {
+        setSelectedOrder(result[0] ?? null);
       })
       .catch((err) => {
-        console.error('Ошибка при загрузке заказа:', err);
+        console.error('Ошибка получения заказа:', err);
       });
-  }, [dispatch, number]);
+  }, [send, orderId]);
 
-  const orderInfo = useMemo(() => {
-    if (!orderData || !ingredients.length) return null;
+  const composedOrder = useMemo(() => {
+    if (!selectedOrder || !allIngredients.length) return null;
 
-    const date = new Date(orderData.createdAt);
+    const createdDate = new Date(selectedOrder.createdAt);
 
-    type TIngredientsWithCount = {
-      [key: string]: TIngredient & { count: number };
-    };
+    const grouped: Record<string, TIngredient & { count: number }> = {};
 
-    const ingredientsInfo = orderData.ingredients.reduce(
-      (acc: TIngredientsWithCount, item) => {
-        if (!acc[item]) {
-          const ingredient = ingredients.find((ing) => ing._id === item);
-          if (ingredient) {
-            acc[item] = {
-              ...ingredient,
-              count: 1
-            };
-          }
-        } else {
-          acc[item].count++;
+    selectedOrder.ingredients.forEach((id) => {
+      if (!grouped[id]) {
+        const match = allIngredients.find((i) => i._id === id);
+        if (match) {
+          grouped[id] = { ...match, count: 1 };
         }
+      } else {
+        grouped[id].count++;
+      }
+    });
 
-        return acc;
-      },
-      {}
-    );
-
-    const total = Object.values(ingredientsInfo).reduce(
+    const sum = Object.values(grouped).reduce(
       (acc, item) => acc + item.price * item.count,
       0
     );
 
     return {
-      ...orderData,
-      ingredientsInfo,
-      date,
-      total
+      ...selectedOrder,
+      ingredientsInfo: grouped,
+      date: createdDate,
+      total: sum
     };
-  }, [orderData, ingredients]);
+  }, [selectedOrder, allIngredients]);
 
-  if (!orderInfo) {
+  if (!composedOrder) {
     return <Preloader />;
   }
 
-  if (!orderInfo) {
-    return <Preloader />;
-  }
-
-  return <OrderInfoUI orderInfo={orderInfo} />;
+  return <OrderInfoUI orderInfo={composedOrder} />;
 };

@@ -1,7 +1,8 @@
 import React, { useEffect } from 'react';
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
-import { AppHeader } from '@components';
-import { ConstructorPage } from '../../pages/constructor-page';
+
+import { SiteHeader } from '@components';
+import { BuilderPage } from '../../pages/builder-page';
 import { Feed } from '../../pages/feed';
 import { Login } from '../../pages/login';
 import { Register } from '../../pages/register';
@@ -13,26 +14,28 @@ import { NotFound404 } from '../../pages/not-fount-404';
 import { OrderInfo } from '../../components/order-info';
 import { IngredientDetails } from '../../components/ingredient-details';
 import { Modal } from '../../components/modal';
-import { RootState, useDispatch, useSelector } from '../../services/store';
+
+import { RootState, useDispatch } from '../../services/store';
 import { fetchIngredients } from '../../services/slices/ingredients-slice';
 import { Preloader } from '../ui/preloader/preloader';
+
 import {
   ProtectedRoute,
   PublicRoute
 } from '../protected-route/protected-route';
 
 const App = () => {
-  const dispatch = useDispatch();
+  const dispatchIngredients = useDispatch();
 
   useEffect(() => {
-    dispatch(fetchIngredients());
-  }, [dispatch]);
+    dispatchIngredients(fetchIngredients());
+  }, [dispatchIngredients]);
 
   return (
     <BrowserRouter>
-      <AppHeader />
+      <SiteHeader />
       <Routes>
-        <Route path='/' element={<ConstructorPage />} />
+        <Route path='/' element={<BuilderPage />} />
         <Route path='/feed' element={<Feed />} />
         <Route
           path='/feed/:number'
@@ -42,7 +45,6 @@ const App = () => {
             </Modal>
           }
         />
-
         <Route
           path='/ingredients/:id'
           element={

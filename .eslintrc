@@ -10,12 +10,8 @@
     }
   },
   "rules": {
-    "prettier/prettier": [
-      "warn",
-      {
-        "usePrettierrc": true
-      }
-    ],
+    "prettier/prettier": "off",
+    "jsx-quotes": "off",
     "react/react-in-jsx-scope": "off",
     "comma-dangle": "off",
     "use-isnan": ["error", { "enforceForSwitchCase": true }],
@@ -34,7 +30,6 @@
     "react/jsx-max-depth": ["warn", { "max": 8 }],
     "arrow-body-style": ["warn", "as-needed"],
     "dot-notation": "warn",
-    "jsx-quotes": ["warn", "prefer-single"],
     "valid-typeof": "warn",
     "@typescript-eslint/member-ordering": [
       "warn",

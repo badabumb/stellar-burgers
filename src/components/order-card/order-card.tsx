@@ -6,54 +6,48 @@ import { TIngredient } from '@utils-types';
 import { OrderCardUI } from '../ui/order-card';
 import { RootState, useSelector } from '../../services/store';
 
-const maxIngredients = 6;
+const INGREDIENT_LIMIT = 6;
 
 export const OrderCard: FC<OrderCardProps> = memo(({ order }) => {
-  const location = useLocation();
-
-  const ingredients = useSelector(
+  const currentLocation = useLocation();
+  const ingredientPool = useSelector(
     (state: RootState) => state.ingredients.items
   );
 
-  const orderInfo = useMemo(() => {
-    if (!ingredients.length) return null;
+  const processedOrder = useMemo(() => {
+    if (!ingredientPool.length) return null;
 
-    const ingredientsInfo = order.ingredients.reduce(
-      (acc: TIngredient[], item: string) => {
-        const ingredient = ingredients.find((ing) => ing._id === item);
-        if (ingredient) return [...acc, ingredient];
-        return acc;
-      },
-      []
-    );
+    const detailedIngredients = order.ingredients.reduce((acc: TIngredient[], id: string) => {
+      const match = ingredientPool.find((item) => item._id === id);
+      return match ? [...acc, match] : acc;
+    }, []);
 
-    const total = ingredientsInfo.reduce((acc, item) => acc + item.price, 0);
-
-    const ingredientsToShow = ingredientsInfo.slice(0, maxIngredients);
-
-    const remains =
-      ingredientsInfo.length > maxIngredients
-        ? ingredientsInfo.length - maxIngredients
+    const cost = detailedIngredients.reduce((sum, el) => sum + el.price, 0);
+    const visibleIngredients = detailedIngredients.slice(0, INGREDIENT_LIMIT);
+    const hiddenCount =
+      detailedIngredients.length > INGREDIENT_LIMIT
+        ? detailedIngredients.length - INGREDIENT_LIMIT
         : 0;
 
-    const date = new Date(order.createdAt);
+    const timestamp = new Date(order.createdAt);
+
     return {
       ...order,
-      ingredientsInfo,
-      ingredientsToShow,
-      remains,
-      total,
-      date
+      ingredientsInfo: detailedIngredients,
+      ingredientsToShow: visibleIngredients,
+      remains: hiddenCount,
+      total: cost,
+      date: timestamp
     };
-  }, [order, ingredients]);
+  }, [order, ingredientPool]);
 
-  if (!orderInfo) return null;
+  if (!processedOrder) return null;
 
   return (
     <OrderCardUI
-      orderInfo={orderInfo}
-      maxIngredients={maxIngredients}
-      locationState={{ background: location }}
+      orderInfo={processedOrder}
+      maxIngredients={INGREDIENT_LIMIT}
+      locationState={{ background: currentLocation }}
     />
   );
 });

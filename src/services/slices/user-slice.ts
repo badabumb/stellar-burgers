@@ -1,4 +1,3 @@
-// src/services/slices/user-slice.ts
 import { createSlice, createAsyncThunk, PayloadAction } from '@reduxjs/toolkit';
 import {
   registerUserApi,
@@ -13,14 +12,14 @@ import {
 } from '../../utils/burger-api';
 import { TUser } from '../../utils/types';
 
-interface UserState {
+export interface UserState {
   user: TUser | null;
   loading: boolean;
   error: string | null;
   passwordResetRequested: boolean;
 }
 
-const initialUserState: UserState = {
+const userInitialState: UserState = {
   user: null,
   loading: false,
   error: null,
@@ -31,16 +30,16 @@ export const registerUser = createAsyncThunk<
   { user: TUser; accessToken: string; refreshToken: string },
   TRegisterData,
   { rejectValue: string }
->('user/register', async (data, { rejectWithValue }) => {
+>('user/register', async (payload, { rejectWithValue }) => {
   try {
-    const response = await registerUserApi(data);
+    const res = await registerUserApi(payload);
     return {
-      user: response.user,
-      accessToken: response.accessToken,
-      refreshToken: response.refreshToken
+      user: res.user,
+      accessToken: res.accessToken,
+      refreshToken: res.refreshToken
     };
-  } catch (err: any) {
-    return rejectWithValue(err.message);
+  } catch (e: any) {
+    return rejectWithValue(e.message);
   }
 });
 
@@ -48,16 +47,16 @@ export const loginUser = createAsyncThunk<
   { user: TUser; accessToken: string; refreshToken: string },
   TLoginData,
   { rejectValue: string }
->('user/login', async (credentials, { rejectWithValue }) => {
+>('user/login', async (payload, { rejectWithValue }) => {
   try {
-    const response = await loginUserApi(credentials);
+    const res = await loginUserApi(payload);
     return {
-      user: response.user,
-      accessToken: response.accessToken,
-      refreshToken: response.refreshToken
+      user: res.user,
+      accessToken: res.accessToken,
+      refreshToken: res.refreshToken
     };
-  } catch (err: any) {
-    return rejectWithValue(err.message);
+  } catch (e: any) {
+    return rejectWithValue(e.message);
   }
 });
 
@@ -66,11 +65,10 @@ export const logoutUser = createAsyncThunk<void, void, { rejectValue: string }>(
   async (_, { rejectWithValue }) => {
     try {
       await logoutApi();
-      // Очистим токены
       localStorage.removeItem('refreshToken');
       document.cookie = 'accessToken=; path=/; max-age=0';
-    } catch (err: any) {
-      return rejectWithValue(err.message);
+    } catch (e: any) {
+      return rejectWithValue(e.message);
     }
   }
 );
@@ -79,10 +77,10 @@ export const fetchUser = createAsyncThunk<TUser, void, { rejectValue: string }>(
   'user/fetch',
   async (_, { rejectWithValue }) => {
     try {
-      const response = await getUserApi();
-      return response.user;
-    } catch (err: any) {
-      return rejectWithValue(err.message);
+      const res = await getUserApi();
+      return res.user;
+    } catch (e: any) {
+      return rejectWithValue(e.message);
     }
   }
 );
@@ -91,12 +89,12 @@ export const updateUser = createAsyncThunk<
   TUser,
   Partial<TRegisterData>,
   { rejectValue: string }
->('user/update', async (userData, { rejectWithValue }) => {
+>('user/update', async (payload, { rejectWithValue }) => {
   try {
-    const response = await updateUserApi(userData);
-    return response.user;
-  } catch (err: any) {
-    return rejectWithValue(err.message);
+    const res = await updateUserApi(payload);
+    return res.user;
+  } catch (e: any) {
+    return rejectWithValue(e.message);
   }
 });
 
@@ -104,11 +102,11 @@ export const requestPasswordReset = createAsyncThunk<
   void,
   { email: string },
   { rejectValue: string }
->('user/requestPasswordReset', async (data, { rejectWithValue }) => {
+>('user/requestPasswordReset', async (info, { rejectWithValue }) => {
   try {
-    await forgotPasswordApi(data);
-  } catch (err: any) {
-    return rejectWithValue(err.message);
+    await forgotPasswordApi(info);
+  } catch (e: any) {
+    return rejectWithValue(e.message);
   }
 });
 
@@ -116,17 +114,17 @@ export const resetPassword = createAsyncThunk<
   void,
   { password: string; token: string },
   { rejectValue: string }
->('user/resetPassword', async (data, { rejectWithValue }) => {
+>('user/resetPassword', async (payload, { rejectWithValue }) => {
   try {
-    await resetPasswordApi(data);
-  } catch (err: any) {
-    return rejectWithValue(err.message);
+    await resetPasswordApi(payload);
+  } catch (e: any) {
+    return rejectWithValue(e.message);
   }
 });
 
 const userSlice = createSlice({
   name: 'user',
-  initialState: initialUserState,
+  initialState: userInitialState,
   reducers: {
     clearPasswordReset(state) {
       state.passwordResetRequested = false;
@@ -134,92 +132,99 @@ const userSlice = createSlice({
   },
   extraReducers: (builder) => {
     builder
-      .addCase(registerUser.pending, (state) => {
-        state.loading = true;
-        state.error = null;
+      .addCase(registerUser.pending, (draft) => {
+        draft.loading = true;
+        draft.error = null;
       })
-      .addCase(registerUser.fulfilled, (state, action) => {
-        state.user = action.payload.user;
-        state.loading = false;
+      .addCase(registerUser.fulfilled, (draft, action) => {
+        draft.user = action.payload.user;
+        draft.loading = false;
       })
-      .addCase(registerUser.rejected, (state, action) => {
-        state.loading = false;
-        state.error = action.payload || 'Registration failed';
+      .addCase(registerUser.rejected, (draft, action) => {
+        draft.loading = false;
+        draft.error = action.payload || 'Не удалось зарегистрироваться';
       })
-      .addCase(loginUser.pending, (state) => {
-        state.loading = true;
-        state.error = null;
+
+      .addCase(loginUser.pending, (draft) => {
+        draft.loading = true;
+        draft.error = null;
       })
-      .addCase(loginUser.fulfilled, (state, action) => {
-        state.user = action.payload.user;
-        state.loading = false;
+      .addCase(loginUser.fulfilled, (draft, action) => {
+        draft.user = action.payload.user;
+        draft.loading = false;
       })
-      .addCase(loginUser.rejected, (state, action) => {
-        state.loading = false;
-        state.error = action.payload || 'Login failed';
+      .addCase(loginUser.rejected, (draft, action) => {
+        draft.loading = false;
+        draft.error = action.payload || 'Ошибка входа в систему';
       })
-      .addCase(logoutUser.pending, (state) => {
-        state.loading = true;
-        state.error = null;
+
+      .addCase(logoutUser.pending, (draft) => {
+        draft.loading = true;
+        draft.error = null;
       })
-      .addCase(logoutUser.fulfilled, (state) => {
-        state.user = null;
-        state.loading = false;
+      .addCase(logoutUser.fulfilled, (draft) => {
+        draft.user = null;
+        draft.loading = false;
       })
-      .addCase(logoutUser.rejected, (state, action) => {
-        state.loading = false;
-        state.error = action.payload || 'Logout failed';
+      .addCase(logoutUser.rejected, (draft, action) => {
+        draft.loading = false;
+        draft.error = action.payload || 'Ошибка выхода из аккаунта';
       })
-      .addCase(fetchUser.pending, (state) => {
-        state.loading = true;
-        state.error = null;
+
+      .addCase(fetchUser.pending, (draft) => {
+        draft.loading = true;
+        draft.error = null;
       })
-      .addCase(fetchUser.fulfilled, (state, action) => {
-        state.user = action.payload;
-        state.loading = false;
+      .addCase(fetchUser.fulfilled, (draft, action) => {
+        draft.user = action.payload;
+        draft.loading = false;
       })
-      .addCase(fetchUser.rejected, (state, action) => {
-        state.loading = false;
-        state.error = action.payload || 'Fetch user failed';
+      .addCase(fetchUser.rejected, (draft, action) => {
+        draft.loading = false;
+        draft.error = action.payload || 'Ошибка получения данных пользователя';
       })
-      .addCase(updateUser.pending, (state) => {
-        state.loading = true;
-        state.error = null;
+
+      .addCase(updateUser.pending, (draft) => {
+        draft.loading = true;
+        draft.error = null;
       })
-      .addCase(updateUser.fulfilled, (state, action) => {
-        state.user = action.payload;
-        state.loading = false;
+      .addCase(updateUser.fulfilled, (draft, action) => {
+        draft.user = action.payload;
+        draft.loading = false;
       })
-      .addCase(updateUser.rejected, (state, action) => {
-        state.loading = false;
-        state.error = action.payload || 'Update user failed';
+      .addCase(updateUser.rejected, (draft, action) => {
+        draft.loading = false;
+        draft.error = action.payload || 'Ошибка обновления профиля';
       })
-      .addCase(requestPasswordReset.pending, (state) => {
-        state.loading = true;
-        state.error = null;
+
+      .addCase(requestPasswordReset.pending, (draft) => {
+        draft.loading = true;
+        draft.error = null;
       })
-      .addCase(requestPasswordReset.fulfilled, (state) => {
-        state.passwordResetRequested = true;
-        state.loading = false;
+      .addCase(requestPasswordReset.fulfilled, (draft) => {
+        draft.passwordResetRequested = true;
+        draft.loading = false;
       })
-      .addCase(requestPasswordReset.rejected, (state, action) => {
-        state.loading = false;
-        state.error = action.payload || 'Request password reset failed';
+      .addCase(requestPasswordReset.rejected, (draft, action) => {
+        draft.loading = false;
+        draft.error = action.payload || 'Ошибка запроса на восстановление';
       })
-      .addCase(resetPassword.pending, (state) => {
-        state.loading = true;
-        state.error = null;
+
+      .addCase(resetPassword.pending, (draft) => {
+        draft.loading = true;
+        draft.error = null;
       })
-      .addCase(resetPassword.fulfilled, (state) => {
-        state.passwordResetRequested = false;
-        state.loading = false;
+      .addCase(resetPassword.fulfilled, (draft) => {
+        draft.passwordResetRequested = false;
+        draft.loading = false;
       })
-      .addCase(resetPassword.rejected, (state, action) => {
-        state.loading = false;
-        state.error = action.payload || 'Reset password failed';
+      .addCase(resetPassword.rejected, (draft, action) => {
+        draft.loading = false;
+        draft.error = action.payload || 'Ошибка сброса пароля';
       });
   }
 });
 
 export const { clearPasswordReset } = userSlice.actions;
 export const userReducer = userSlice.reducer;
+export { userInitialState };
